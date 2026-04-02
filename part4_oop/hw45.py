@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from operator import itemgetter
 from typing import Any, TypeVar, cast
 
 from part4_oop.interfaces import Cache, HasCache, Policy, Storage
@@ -89,13 +90,14 @@ class LFUPolicy(Policy[K]):
 
     def register_access(self, key: K) -> None:
         if key in self._key_counter:
-            self._key_counter[key] += 1
+            current_counter = self._key_counter.get(key, 0)
+            self._key_counter.update({key: current_counter + 1})
             return
         self._pending_evict_key = None
         if len(self._key_counter) >= self.capacity and self._key_counter:
             self._pending_evict_key = min(
                 self._key_counter.items(),
-                key=lambda item: item[1],
+                key=itemgetter(1),
             )[0]
         self._key_counter[key] = 1
 
@@ -106,7 +108,7 @@ class LFUPolicy(Policy[K]):
             return self._pending_evict_key
         return min(
             self._key_counter.items(),
-            key=lambda item: item[1],
+            key=itemgetter(1),
         )[0]
 
     def remove_key(self, key: K) -> None:
