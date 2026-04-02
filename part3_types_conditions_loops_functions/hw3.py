@@ -123,9 +123,7 @@ def income_handler(amount: float, income_date: str) -> str:
     if parsed_date is None:
         return _save_invalid_operation(INCORRECT_DATE_MSG)
 
-    financial_transactions_storage.append(
-        {KEY_AMOUNT: amount, KEY_DATE: parsed_date}
-    )
+    financial_transactions_storage.append({KEY_AMOUNT: amount, KEY_DATE: parsed_date})
     return OP_SUCCESS_MSG
 
 
@@ -286,10 +284,7 @@ def _is_valid_category(category_name: str) -> bool:
 def _iter_categories() -> list[str]:
     categories: list[str] = []
     for common_category, direct_categories in EXPENSE_CATEGORIES.items():
-        categories.extend(
-            f"{common_category}::{direct_category}"
-            for direct_category in direct_categories
-        )
+        categories.extend(f"{common_category}::{direct_category}" for direct_category in direct_categories)
     return categories
 
 
