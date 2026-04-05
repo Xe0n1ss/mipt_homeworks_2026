@@ -288,10 +288,7 @@ def _is_valid_category(category_name: str) -> bool:
 def _iter_categories() -> list[str]:
     categories: list[str] = []
     for common_category, direct_categories in EXPENSE_CATEGORIES.items():
-        categories.extend(
-            f"{common_category}::{direct_category}"
-            for direct_category in direct_categories
-        )
+        categories.extend(f"{common_category}::{direct_category}" for direct_category in direct_categories)
     return categories
 
 
