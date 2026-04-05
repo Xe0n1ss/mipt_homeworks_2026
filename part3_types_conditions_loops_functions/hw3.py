@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from dataclasses import dataclass
 from typing import Any
 
 UNKNOWN_COMMAND_MSG = "Unknown command!"
@@ -68,17 +67,14 @@ STATS_INDEX_DATE = 1
 KEY_AMOUNT = "amount"
 KEY_DATE = "date"
 KEY_CATEGORY = "category"
-
-
-@dataclass
-class StatsSummary:
-    total_capital: float
-    month_income: float
-    month_expenses: float
-    category_totals: dict[str, float]
+KEY_TOTAL_CAPITAL = "total_capital"
+KEY_MONTH_INCOME = "month_income"
+KEY_MONTH_EXPENSES = "month_expenses"
+KEY_CATEGORY_TOTALS = "category_totals"
 
 
 type DateTuple = tuple[int, int, int]
+type StatsSummary = dict[str, float | dict[str, float]]
 
 
 def is_leap_year(year: int) -> bool:
@@ -309,12 +305,12 @@ def _build_stats_summary(report_date: DateTuple) -> StatsSummary:
             category_totals,
         )
 
-    return StatsSummary(
-        total_capital=total_capital,
-        month_income=month_income,
-        month_expenses=month_expenses,
-        category_totals=category_totals,
-    )
+    return {
+        KEY_TOTAL_CAPITAL: total_capital,
+        KEY_MONTH_INCOME: month_income,
+        KEY_MONTH_EXPENSES: month_expenses,
+        KEY_CATEGORY_TOTALS: category_totals,
+    }
 
 
 def _apply_income(
@@ -389,16 +385,22 @@ def _update_summary_from_operation(
 
 
 def _render_stats(report_date: str, summary: StatsSummary) -> str:
-    amount_word = _amount_word(summary.total_capital)
-    category_details = _render_category_details(summary.category_totals)
+    total_capital = float(summary[KEY_TOTAL_CAPITAL])
+    month_income = float(summary[KEY_MONTH_INCOME])
+    month_expenses = float(summary[KEY_MONTH_EXPENSES])
+    category_totals = summary[KEY_CATEGORY_TOTALS]
+    assert isinstance(category_totals, dict)
+
+    amount_word = _amount_word(total_capital)
+    category_details = _render_category_details(category_totals)
     return (
         f"Your statistics as of {report_date}:\n"
-        f"Total capital: {summary.total_capital} rubles\n"
+        f"Total capital: {total_capital} rubles\n"
         "This month, "
         f"the {amount_word} "
-        f"amounted to {summary.total_capital} rubles.\n"
-        f"Income: {summary.month_income} rubles\n"
-        f"Expenses: {summary.month_expenses} rubles\n"
+        f"amounted to {total_capital} rubles.\n"
+        f"Income: {month_income} rubles\n"
+        f"Expenses: {month_expenses} rubles\n"
         "\n"
         "Details (category: amount):\n"
         f"{category_details}\n"
