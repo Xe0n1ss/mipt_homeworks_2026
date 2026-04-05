@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from typing import Any
+from typing import Any, TypedDict
 
 UNKNOWN_COMMAND_MSG = "Unknown command!"
 NONPOSITIVE_VALUE_MSG = "Value must be grater than zero!"
@@ -67,14 +67,16 @@ STATS_INDEX_DATE = 1
 KEY_AMOUNT = "amount"
 KEY_DATE = "date"
 KEY_CATEGORY = "category"
-KEY_TOTAL_CAPITAL = "total_capital"
-KEY_MONTH_INCOME = "month_income"
-KEY_MONTH_EXPENSES = "month_expenses"
-KEY_CATEGORY_TOTALS = "category_totals"
 
 
 type DateTuple = tuple[int, int, int]
-type StatsSummary = dict[str, float | dict[str, float]]
+
+
+class StatsSummary(TypedDict):
+    total_capital: float
+    month_income: float
+    month_expenses: float
+    category_totals: dict[str, float]
 
 
 def is_leap_year(year: int) -> bool:
@@ -119,11 +121,17 @@ def income_handler(amount: float, income_date: str) -> str:
     if parsed_date is None:
         return _save_invalid_operation(INCORRECT_DATE_MSG)
 
-    financial_transactions_storage.append({KEY_AMOUNT: amount, KEY_DATE: parsed_date})
+    financial_transactions_storage.append(
+        {KEY_AMOUNT: amount, KEY_DATE: parsed_date},
+    )
     return OP_SUCCESS_MSG
 
 
-def cost_handler(category_name: str, amount: float, income_date: str) -> str:
+def cost_handler(
+    category_name: str,
+    amount: float,
+    income_date: str,
+) -> str:
     parsed_date = extract_date(income_date)
     if amount <= ZERO_AMOUNT:
         return _save_invalid_operation(NONPOSITIVE_VALUE_MSG)
@@ -280,11 +288,16 @@ def _is_valid_category(category_name: str) -> bool:
 def _iter_categories() -> list[str]:
     categories: list[str] = []
     for common_category, direct_categories in EXPENSE_CATEGORIES.items():
-        categories.extend(f"{common_category}::{direct_category}" for direct_category in direct_categories)
+        categories.extend(
+            f"{common_category}::{direct_category}"
+            for direct_category in direct_categories
+        )
     return categories
 
 
-def _build_stats_summary(report_date: DateTuple) -> StatsSummary:
+def _build_stats_summary(
+    report_date: DateTuple,
+) -> StatsSummary:
     total_capital = ZERO_AMOUNT
     month_income = ZERO_AMOUNT
     month_expenses = ZERO_AMOUNT
@@ -306,10 +319,10 @@ def _build_stats_summary(report_date: DateTuple) -> StatsSummary:
         )
 
     return {
-        KEY_TOTAL_CAPITAL: total_capital,
-        KEY_MONTH_INCOME: month_income,
-        KEY_MONTH_EXPENSES: month_expenses,
-        KEY_CATEGORY_TOTALS: category_totals,
+        "total_capital": total_capital,
+        "month_income": month_income,
+        "month_expenses": month_expenses,
+        "category_totals": category_totals,
     }
 
 
@@ -385,11 +398,10 @@ def _update_summary_from_operation(
 
 
 def _render_stats(report_date: str, summary: StatsSummary) -> str:
-    total_capital = float(summary[KEY_TOTAL_CAPITAL])
-    month_income = float(summary[KEY_MONTH_INCOME])
-    month_expenses = float(summary[KEY_MONTH_EXPENSES])
-    category_totals = summary[KEY_CATEGORY_TOTALS]
-    assert isinstance(category_totals, dict)
+    total_capital = summary["total_capital"]
+    month_income = summary["month_income"]
+    month_expenses = summary["month_expenses"]
+    category_totals = summary["category_totals"]
 
     amount_word = _amount_word(total_capital)
     category_details = _render_category_details(category_totals)
