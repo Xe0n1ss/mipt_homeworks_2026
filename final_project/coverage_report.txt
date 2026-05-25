@@ -1,0 +1,21 @@
+Name                                     Stmts   Miss  Cover
+------------------------------------------------------------
+final_project/__init__.py                    0      0   100%
+final_project/app.py                       115    115     0%
+final_project/clients/__init__.py            0      0   100%
+final_project/clients/llm_client.py         86     27    69%
+final_project/core/__init__.py               0      0   100%
+final_project/core/chunks.py                48      7    85%
+final_project/core/history.py               44      6    86%
+final_project/io/__init__.py                 0      0   100%
+final_project/io/config.py                 100     17    83%
+final_project/io/file_input.py              34      8    76%
+final_project/main.py                       10     10     0%
+final_project/tests/conftest.py              5      0   100%
+final_project/tests/test_chunks.py           9      0   100%
+final_project/tests/test_config.py          14      0   100%
+final_project/tests/test_file_input.py      11      0   100%
+final_project/tests/test_history.py         18      0   100%
+final_project/tests/test_llm_client.py      37      1    97%
+------------------------------------------------------------
+TOTAL                                      531    191    64%
